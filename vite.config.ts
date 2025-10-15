@@ -3,7 +3,7 @@ import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), ''); // ✅ carica .env correttamente
+  const env = loadEnv(mode, process.cwd(), '');
 
   return {
     server: {
@@ -12,8 +12,6 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [react()],
     define: {
-      // ❌ process.env.* non serve
-      // ✅ usa direttamente le variabili VITE_
       'import.meta.env.VITE_GEMINI_API_KEY': JSON.stringify(env.VITE_GEMINI_API_KEY),
     },
     resolve: {
@@ -23,8 +21,7 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       rollupOptions: {
-        // ✅ evita che Vite cerchi di bundlare @google/genai
-        external: ['@google/genai'],
+        // La riga 'external' è stata rimossa per includere la libreria di Gemini nel bundle
       },
     },
   };
