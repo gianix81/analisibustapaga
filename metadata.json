@@ -1,0 +1,5 @@
+{
+  "name": "Analizzatore Buste Paga AI",
+  "description": "Un'applicazione web per analizzare, archiviare e confrontare buste paga utilizzando l'intelligenza artificiale di Gemini per estrarre dati e rispondere a domande.",
+  "requestFramePermissions": []
+}

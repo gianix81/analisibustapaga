@@ -1,0 +1,9 @@
+{
+  "short_name": "PayAnalyst",
+  "name": "Analizzatore Buste Paga AI",
+  "description": "Un'applicazione web per analizzare, archiviare e confrontare buste paga utilizzando l'intelligenza artificiale di Gemini per estrarre dati e rispondere a domande.",
+  "start_url": "/",
+  "background_color": "#f3f4f6",
+  "display": "standalone",
+  "theme_color": "#2563eb"
+}
