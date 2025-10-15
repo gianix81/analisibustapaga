@@ -76,23 +76,3 @@ export const PdfIcon: React.FC<{className?: string}> = ({className = "w-6 h-6"})
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
     </svg>
 );
-export const TrendingUpIcon: React.FC<{className?: string}> = ({className = "w-6 h-6"}) => (
-    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-    </svg>
-);
-export const LayersIcon: React.FC<{className?: string}> = ({className = "w-6 h-6"}) => (
-    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-    </svg>
-);
-export const ShiftIcon: React.FC<{className?: string}> = ({className = "w-6 h-6"}) => (
-    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-);
-export const LeaveIcon: React.FC<{className?: string}> = ({className = "w-6 h-6"}) => (
-    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.894 2.886l4.243 4.243m-4.243-4.243l-4.243 4.243m4.243-4.243v12.728m0 0l-4.243-4.243m4.243 4.243l4.243-4.243M3 12h.01M6.086 12h.01M9.172 12h.01M12.257 12h.01M15.343 12h.01M18.429 12h.01M21.514 12h.01M3 15h.01M6.086 15h.01M9.172 15h.01M12.257 15h.01M15.343 15h.01M18.429 15h.01M21.514 15h.01M3 18h.01M6.086 18h.01M9.172 18h.01M12.257 18h.01M15.343 18h.01M18.429 18h.01M21.514 18h.01" />
-    </svg>
-);

@@ -166,13 +166,12 @@ const ShiftPlanner: React.FC<ShiftPlannerProps> = ({ shifts, onSave, onDelete })
                 </div>
             </div>
             
-            {/* FIX: Replaced non-standard <style jsx> with a standard <style> tag. */}
-            <style>{`
+            <style jsx global>{`
                 @media print {
                     body {
                         background-color: white;
                     }
-                    .print\\:hidden {
+                    .print\:hidden {
                         display: none;
                     }
                     #printable-shifts {

@@ -7,9 +7,7 @@ import Compare from './components/Compare.tsx';
 import Assistant from './components/Assistant.tsx';
 import Onboarding from './components/Onboarding.tsx';
 import Settings from './components/Settings.tsx';
-import ShiftPlanner from './components/ShiftPlanner.tsx';
-import LeavePlanner from './components/LeavePlanner.tsx';
-import { View, Payslip, User, Shift, LeavePlan } from './types.ts';
+import { View, Payslip, User } from './types.ts';
 
 const App: React.FC = () => {
     const [currentView, setCurrentView] = useState<View>(View.Dashboard);
@@ -33,27 +31,6 @@ const App: React.FC = () => {
             return [];
         }
     });
-    
-    const [shifts, setShifts] = useState<Shift[]>(() => {
-        try {
-            const item = window.localStorage.getItem('payslip_shifts');
-            return item ? JSON.parse(item) : [];
-        } catch (error) {
-            console.error("Error reading shifts from localStorage", error);
-            return [];
-        }
-    });
-
-    const [leavePlans, setLeavePlans] = useState<LeavePlan[]>(() => {
-        try {
-            const item = window.localStorage.getItem('payslip_leave_plans');
-            return item ? JSON.parse(item) : [];
-        } catch (error) {
-            console.error("Error reading leave plans from localStorage", error);
-            return [];
-        }
-    });
-
 
     const [selectedPayslip, setSelectedPayslip] = useState<Payslip | null>(payslips.length > 0 ? payslips[0] : null);
     const [payslipsToCompare, setPayslipsToCompare] = useState<[Payslip, Payslip] | null>(null);
@@ -78,22 +55,6 @@ const App: React.FC = () => {
             console.error("Error saving payslips to localStorage", error);
         }
     }, [payslips]);
-    
-    useEffect(() => {
-        try {
-            window.localStorage.setItem('payslip_shifts', JSON.stringify(shifts));
-        } catch (error) {
-            console.error("Error saving shifts to localStorage", error);
-        }
-    }, [shifts]);
-
-    useEffect(() => {
-        try {
-            window.localStorage.setItem('payslip_leave_plans', JSON.stringify(leavePlans));
-        } catch (error) {
-            console.error("Error saving leave plans to localStorage", error);
-        }
-    }, [leavePlans]);
 
     const handleAnalysisComplete = (newPayslip: Payslip) => {
         const namesMatch = user &&
@@ -141,38 +102,7 @@ const App: React.FC = () => {
     
     const handleUpdateUser = (updatedUser: User) => {
         setUser(updatedUser);
-    };
-
-    const handleSaveShift = (shift: Shift) => {
-        setShifts(prev => {
-            const index = prev.findIndex(s => s.id === shift.id);
-            if (index !== -1) {
-                const updated = [...prev];
-                updated[index] = shift;
-                return updated;
-            }
-            return [...prev, shift];
-        });
-    };
-
-    const handleDeleteShift = (shiftId: string) => {
-        setShifts(prev => prev.filter(s => s.id !== shiftId));
-    };
-
-    const handleSaveLeavePlan = (plan: LeavePlan) => {
-        setLeavePlans(prev => {
-            const index = prev.findIndex(p => p.id === plan.id);
-            if (index !== -1) {
-                const updated = [...prev];
-                updated[index] = plan;
-                return updated;
-            }
-            return [...prev, plan];
-        });
-    };
-
-    const handleDeleteLeavePlan = (planId: string) => {
-        setLeavePlans(prev => prev.filter(p => p.id !== planId));
+        // Optionally, show a success message
     };
 
     const renderView = () => {
@@ -192,10 +122,6 @@ const App: React.FC = () => {
                 return <Compare payslips={payslipsToCompare} />;
             case View.Assistant:
                 return <Assistant payslips={payslips} mode="general" />;
-            case View.ShiftPlanner:
-                return <ShiftPlanner shifts={shifts} onSave={handleSaveShift} onDelete={handleDeleteShift} />;
-            case View.LeavePlanner:
-                return <LeavePlanner leavePlans={leavePlans} onSave={handleSaveLeavePlan} onDelete={handleDeleteLeavePlan} />;
             case View.Settings:
                 return <Settings user={user!} onSave={handleUpdateUser} />;
             default:

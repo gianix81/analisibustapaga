@@ -5,8 +5,6 @@ export enum View {
     Compare = 'compare',
     Assistant = 'assistant',
     Settings = 'settings',
-    ShiftPlanner = 'shift_planner',
-    LeavePlanner = 'leave_planner',
 }
 
 export interface User {
@@ -49,7 +47,6 @@ export interface Payslip {
         contractType?: string;
     };
     
-    remunerationElements: PayItem[];
     incomeItems: PayItem[];
     deductionItems: PayItem[];
     
@@ -95,34 +92,4 @@ export interface ChatMessage {
     id: string;
     text: string;
     sender: 'user' | 'ai';
-}
-
-export interface HistoricalAnalysisResult {
-    summary: string;
-    averageNetSalary: number;
-    averageGrossSalary: number;
-    differingItems: {
-        description: string;
-        currentValue: number;
-        averageValue: number;
-        difference: number;
-        type: 'income' | 'deduction' | 'other';
-        comment: string;
-    }[];
-}
-
-export interface Shift {
-    id: string;
-    date: string; // YYYY-MM-DD
-    startTime: string; // HH:mm
-    endTime: string; // HH:mm
-    notes?: string;
-}
-
-export interface LeavePlan {
-    id: string;
-    type: 'Ferie' | 'ROL';
-    startDate: string; // YYYY-MM-DD
-    endDate: string; // YYYY-MM-DD
-    notes?: string;
 }

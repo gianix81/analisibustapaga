@@ -1,5 +1,5 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import { ChatMessage, Payslip, HistoricalAnalysisResult } from "../types.ts";
+import { ChatMessage, Payslip } from "../types.ts";
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
 
@@ -497,12 +497,7 @@ const payslipSchema = {
             },
             required: ['firstName', 'lastName', 'taxId']
         },
-        remunerationElements: { 
-            type: Type.ARRAY, 
-            items: payItemSchema, 
-            description: "Elenco dettagliato delle voci fisse che compongono la retribuzione mensile di base (es. 'Paga Base', 'Contingenza', 'Scatti Anzianità', 'Superminimo'). Estrai questi dati dalla sezione 'Elementi della Retribuzione' o simile." 
-        },
-        incomeItems: { type: Type.ARRAY, items: payItemSchema, description: "Elenco di tutte le voci a favore del dipendente (competenze), INCLUSE le voci della retribuzione di base." },
+        incomeItems: { type: Type.ARRAY, items: payItemSchema, description: "Elenco di tutte le voci a favore del dipendente (competenze)." },
         deductionItems: { type: Type.ARRAY, items: payItemSchema, description: "Elenco di tutte le voci a carico del dipendente (trattenute previdenziali, fiscali, etc.)." },
         grossSalary: { type: Type.NUMBER, description: "Retribuzione Lorda o Totale Competenze." },
         totalDeductions: { type: Type.NUMBER, description: "Totale delle trattenute." },
@@ -556,20 +551,18 @@ const payslipSchema = {
             required: ['vacation', 'permits']
         },
     },
-    required: ['id', 'period', 'company', 'employee', 'remunerationElements', 'incomeItems', 'deductionItems', 'grossSalary', 'totalDeductions', 'netSalary', 'taxData', 'socialSecurityData', 'tfr', 'leaveData']
+    required: ['id', 'period', 'company', 'employee', 'incomeItems', 'deductionItems', 'grossSalary', 'totalDeductions', 'netSalary', 'taxData', 'socialSecurityData', 'tfr', 'leaveData']
 };
 
 
 export const analyzePayslip = async (file: File): Promise<Payslip> => {
     const imagePart = await fileToGenerativePart(file);
-    const prompt = `Esegui un'analisi estremamente analitica e approfondita di questa busta paga italiana. Non tralasciare alcun dettaglio. Interpreta ogni singola voce, numero e codice, anche se posizionata in modo non standard. Popola lo schema JSON fornito con la massima precisione e granularità.
-- **Dati Anagrafici e Contrattuali**: Estrai tutti i dati relativi all'azienda e al dipendente, inclusi livello, CCNL, qualifica, etc.
-- **Elementi della Retribuzione**: Identifica la sezione 'Elementi della Retribuzione' (o simile) e popola l'array \`remunerationElements\` con ogni singola voce che contribuisce alla retribuzione mensile lorda (es. Paga Base, Contingenza, Scatti Anzianità, Superminimo, E.D.R.). È fondamentale che questa sezione sia completa.
-- **Corpo della Busta Paga**: Popola \`incomeItems\` con TUTTE le competenze a favore del dipendente (incluse quelle di base già elencate in \`remunerationElements\`) e \`deductionItems\` con tutte le trattenute.
-- **Dati Fiscali, Previdenziali, TFR**: Dettaglia con precisione tutte le sezioni relative a IRPEF, contributi INPS, Trattamento di Fine Rapporto, e lo stato di ferie e permessi.
-- **Accuratezza Numerica**: Assicurati che tutti i campi numerici siano correttamente parsati come numeri. Non inserire il simbolo dell'euro o altri caratteri non numerici.
-- **Completezza**: Se un dato non è esplicitamente presente, usa 0 per i valori numerici e stringhe vuote per il testo. Non lasciare campi vuoti se sono richiesti.
-- **ID Univoco**: Genera un UUID per il campo 'id'.`;
+    const prompt = `Esegui un'analisi semantica completa e dettagliata di questa busta paga italiana. Non limitarti a una lettura tabellare. Cerca e interpreta ogni singola voce, anche se posizionata in modo non standard. Popola lo schema JSON fornito con la massima granularità possibile. 
+- Estrai tutte le voci del corpo della busta paga, sia le competenze (incomeItems) che le trattenute (deductionItems), con descrizione, quantità, importo base e totale.
+- Dettaglia i dati fiscali, previdenziali, TFR, e lo stato di ferie e permessi.
+- Assicurati che tutti i campi numerici siano correttamente parsati come numeri.
+- Se un dato non è esplicitamente presente, usa 0 per i valori numerici e stringhe vuote per il testo, ma cerca di essere il più completo possibile.
+- Genera un UUID per il campo 'id'.`;
 
     const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
@@ -689,70 +682,4 @@ export const getChatResponse = async (
     });
 
     return responseStream;
-};
-
-const historicalAnalysisSchema = {
-    type: Type.OBJECT,
-    properties: {
-        summary: { type: Type.STRING, description: "Un'analisi testuale riassuntiva e professionale delle principali differenze e possibili cause." },
-        averageNetSalary: { type: Type.NUMBER, description: "La media degli stipendi netti dei mesi precedenti." },
-        averageGrossSalary: { type: Type.NUMBER, description: "La media degli stipendi lordi dei mesi precedenti." },
-        differingItems: {
-            type: Type.ARRAY,
-            description: "Un elenco delle voci di costo che presentano le differenze più significative.",
-            items: {
-                type: Type.OBJECT,
-                properties: {
-                    description: { type: Type.STRING, description: "La descrizione della voce (es. 'Straordinari', 'Contributi IVS')." },
-                    currentValue: { type: Type.NUMBER, description: "Il valore della voce nella busta paga corrente." },
-                    averageValue: { type: Type.NUMBER, description: "Il valore medio della voce nelle buste paga precedenti. Se la voce è nuova, questo valore è 0." },
-                    difference: { type: Type.NUMBER, description: "La differenza tra il valore corrente e la media." },
-                    type: { type: Type.STRING, description: "Il tipo di voce: 'income' (competenza), 'deduction' (trattenuta), o 'other' (es. TFR, ferie)." },
-                    comment: { type: Type.STRING, description: "Un breve commento dell'IA sulla possibile causa o significato di questa differenza." }
-                },
-                required: ['description', 'currentValue', 'averageValue', 'difference', 'type', 'comment']
-            }
-        }
-    },
-    required: ['summary', 'averageNetSalary', 'averageGrossSalary', 'differingItems']
-};
-
-
-export const getHistoricalAnalysis = async (currentPayslip: Payslip, historicalPayslips: Payslip[]): Promise<HistoricalAnalysisResult> => {
-     if (historicalPayslips.length === 0) {
-        throw new Error("Nessuna busta paga storica fornita per l'analisi.");
-    }
-    
-    const prompt = `In qualità di esperto consulente del lavoro, analizza la busta paga corrente in relazione allo storico delle buste paga precedenti. L'obiettivo è identificare e spiegare le variazioni significative.
-
-**Busta Paga Corrente (${currentPayslip.period.month}/${currentPayslip.period.year}):**
-${JSON.stringify(currentPayslip, null, 2)}
-
-**Storico Buste Paga Precedenti:**
-${JSON.stringify(historicalPayslips, null, 2)}
-
-**Istruzioni:**
-1.  **Calcola le medie:** Calcola la media dello stipendio lordo e netto dei mesi precedenti.
-2.  **Identifica le differenze:** Confronta ogni voce (competenze, trattenute, TFR, ferie, etc.) della busta paga corrente con la media delle stesse voci nello storico. Se una voce è presente solo nel mese corrente, considerala una nuova voce.
-3.  **Fornisci un'analisi:** Scrivi un riassunto chiaro e conciso in italiano che spieghi le principali differenze. Ad esempio, se lo stipendio netto è più alto, spiega perché (es. bonus, meno tasse, etc.).
-4.  **Elenca le voci significative:** Popola l'array 'differingItems' solo con le voci che hanno una variazione rilevante (es. una differenza di più di qualche euro, o voci completamente nuove/mancanti). Per ogni voce, fornisci un breve commento che ne spieghi la natura.
-5.  **Rispetta lo schema:** Restituisci i risultati esclusivamente nel formato JSON specificato, senza testo aggiuntivo.`;
-
-    const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
-        config: {
-            responseMimeType: "application/json",
-            responseSchema: historicalAnalysisSchema
-        }
-    });
-
-    const jsonStr = response.text.trim();
-    try {
-        const analysisData = JSON.parse(jsonStr);
-        return analysisData as HistoricalAnalysisResult;
-    } catch (e) {
-        console.error("Failed to parse Gemini historical analysis response as JSON:", jsonStr, e);
-        throw new Error("L'analisi storica ha prodotto un risultato non valido.");
-    }
 };
