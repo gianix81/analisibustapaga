@@ -1,17 +1,17 @@
-import { GoogleGenerativeAI, Type } from "@google/genai";
+import { GoogleAIClient, Type } from "@google/genai";
 import { ChatMessage, Payslip } from "../types.ts";
 
 // ✅ Recupera la chiave API in modo compatibile con Vite
-// Devi definirla in un file .env come:
+// Definisci in .env locale o su Netlify:
 // VITE_GEMINI_API_KEY=la_tua_chiave_api
-// oppure nelle variabili d'ambiente Netlify
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
 if (!apiKey) {
   throw new Error("Chiave API Gemini mancante. Imposta VITE_GEMINI_API_KEY nel file .env o su Netlify.");
 }
 
-const ai = new GoogleGenerativeAI({ apiKey });
+// ✅ Usa la nuova classe corretta
+const ai = new GoogleAIClient({ apiKey });
 
 /* -------------------------------------------------------------------------- */
 /*                        TABELLE ADDIZIONALI COMUNALI                        */
