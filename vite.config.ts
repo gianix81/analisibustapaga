@@ -21,8 +21,14 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       rollupOptions: {
-        // La riga 'external' è stata rimossa per includere la libreria di Gemini nel bundle
-      },
-    },
+        output: {
+          manualChunks(id) {
+            if (id.includes('@google/genai')) {
+              return 'google-genai';
+            }
+          }
+        }
+      }
+    }
   };
 });
